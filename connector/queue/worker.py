@@ -39,11 +39,11 @@ from openerp.addons.connector.session import ConnectorSessionHandler
 from .job import (OpenERPJobStorage,
                   PENDING,
                   DONE)
-from openerp.adddons.connector.exception import (NoSuchJobError,
-                                                 NotReadableJobError,
-                                                 RetryableJobError,
-                                                 FailedJobError,
-                                                 NothingToDoJob)
+from openerp.addons.connector.exception import (NoSuchJobError,
+                                                NotReadableJobError,
+                                                RetryableJobError,
+                                                FailedJobError,
+                                                NothingToDoJob)
 
 _logger = logging.getLogger(__name__)
 
