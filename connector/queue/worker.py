@@ -35,15 +35,15 @@ import openerp
 from openerp.osv.osv import PG_CONCURRENCY_ERRORS_TO_RETRY
 from openerp.tools import config
 from .queue import JobsQueue
-from ..session import ConnectorSessionHandler
+from openerp.addons.connector.session import ConnectorSessionHandler
 from .job import (OpenERPJobStorage,
                   PENDING,
                   DONE)
-from ..exception import (NoSuchJobError,
-                         NotReadableJobError,
-                         RetryableJobError,
-                         FailedJobError,
-                         NothingToDoJob)
+from openerp.adddons.connector.exception import (NoSuchJobError,
+                                                 NotReadableJobError,
+                                                 RetryableJobError,
+                                                 FailedJobError,
+                                                 NothingToDoJob)
 
 _logger = logging.getLogger(__name__)
 

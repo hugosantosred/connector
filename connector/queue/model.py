@@ -29,7 +29,7 @@ from openerp.tools.translate import _
 
 from .job import STATES, DONE, PENDING, OpenERPJobStorage
 from .worker import WORKER_TIMEOUT
-from ..session import ConnectorSession
+from openerp.addons.connector.session import ConnectorSession
 from .worker import watcher
 
 _logger = logging.getLogger(__name__)

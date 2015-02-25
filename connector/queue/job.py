@@ -31,10 +31,10 @@ from openerp import SUPERUSER_ID
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.tools.translate import _
 
-from ..exception import (NotReadableJobError,
-                         NoSuchJobError,
-                         FailedJobError,
-                         RetryableJobError)
+from openerp.addons.connector.exception import (NotReadableJobError,
+                                                NoSuchJobError,
+                                                FailedJobError,
+                                                RetryableJobError)
 
 PENDING = 'pending'
 ENQUEUED = 'enqueued'
