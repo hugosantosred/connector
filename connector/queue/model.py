@@ -25,11 +25,13 @@ from datetime import datetime, timedelta
 
 from openerp import models, fields, api, exceptions, _
 
-from .job import STATES, DONE, PENDING, OpenERPJobStorage, JOB_REGISTRY
-from .worker import WORKER_TIMEOUT
-from ..session import ConnectorSession
-from .worker import watcher
-from ..connector import get_openerp_module, is_module_installed
+from openerp.addons.connector.queue.job import STATES, DONE, PENDING, \
+    OpenERPJobStorage, JOB_REGISTRY
+from openerp.addons.connector.queue.worker import WORKER_TIMEOUT
+from openerp.addons.connector.session import ConnectorSession
+from openerp.addons.connector.queue.worker import watcher
+from openerp.addons.connector.connector import get_openerp_module, \
+    is_module_installed
 
 _logger = logging.getLogger(__name__)
 
