@@ -50,6 +50,7 @@ class QueueJob(models.Model):
     worker_id = fields.Many2one(comodel_name='queue.worker',
                                 string='Worker',
                                 ondelete='set null',
+                                select=True,
                                 readonly=True)
     uuid = fields.Char(string='UUID',
                        readonly=True,
@@ -90,6 +91,7 @@ class QueueJob(models.Model):
     func_name = fields.Char(readonly=True)
     job_function_id = fields.Many2one(comodel_name='queue.job.function',
                                       compute='_compute_channel',
+                                      string='Job Function',
                                       readonly=True,
                                       store=True)
     # for searching without JOIN on channels
