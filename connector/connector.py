@@ -19,9 +19,15 @@
 #
 ##############################################################################
 
+import hashlib
 import logging
+import struct
+
 from contextlib import contextmanager
+from openerp import models, fields
+
 from .deprecate import log_deprecate, DeprecatedClass
+from .exception import RetryableJobError
 
 _logger = logging.getLogger(__name__)
 
@@ -53,25 +59,11 @@ def install_in_connector():
 def is_module_installed(env, module_name):
     """ Check if an Odoo addon is installed.
 
-    The function might be called before `connector` is even installed;
-    in such case, `ir_module_module.is_module_installed()` is not available yet
-    and this is why we first check the installation of `connector` by looking
-    up for a model in the registry.
-
-    :param module_name: name of the addon to check being 'connector' or
-                        an addon depending on it
-
+    :param module_name: name of the addon
     """
-    if env.registry.get('connector.backend'):
-        if module_name == 'connector':
-            # fast-path: connector is necessarily installed because
-            # the model is in the registry
-            return True
-        # for another addon, check in ir.module.module
-        return env['ir.module.module'].is_module_installed(module_name)
-
-    # connector module is not installed neither any sub-addons
-    return False
+    # the registry maintains a set of fully loaded modules so we can
+    # lookup for our module there
+    return module_name in env.registry._init_modules
 
 
 def get_openerp_module(cls_or_func):
@@ -197,9 +189,10 @@ class ConnectorUnit(object):
         :py:class:`~connector.connector.ConnectorUnit` for the current
         model and being a class or subclass of ``connector_unit_class``.
 
-        If a different ``model`` is given, a new
-        :py:class:`~connector.connector.ConnectorEnvironment`
-        is built for this model.
+        If a different ``model`` is given, a new ConnectorEnvironment is built
+        for this model. The class used for creating the new environment is
+        the same class as in `self.connector_env` which must be
+        :py:class:`~connector.connector.ConnectorEnvironment` or a subclass.
 
         :param connector_unit_class: ``ConnectorUnit`` to search
                                      (class or subclass)
@@ -212,9 +205,11 @@ class ConnectorUnit(object):
         if model is None or model == self.model._name:
             env = self.connector_env
         else:
-            env = ConnectorEnvironment(self.backend_record,
-                                       self.session,
-                                       model)
+            env = self.connector_env.create_environment(
+                self.backend_record,
+                self.session, model,
+                connector_env=self.connector_env)
+
         return env.get_connector_unit(connector_unit_class)
 
     def get_connector_unit_for_model(self, connector_unit_class, model=None):
@@ -235,6 +230,41 @@ class ConnectorUnit(object):
         """
         log_deprecate('renamed to binder_for()')
         return self.binder_for(model=model)
+
+    def advisory_lock_or_retry(self, lock, retry_seconds=1):
+        """ Acquire a Postgres transactional advisory lock or retry job
+
+        When the lock cannot be acquired, it raises a
+        ``RetryableJobError`` so the job is retried after n
+        ``retry_seconds``.
+
+        Usage example:
+
+        ::
+
+            lock_name = 'import_record({}, {}, {}, {})'.format(
+                self.backend_record._name,
+                self.backend_record.id,
+                self.model._name,
+                self.external_id,
+            )
+            self.advisory_lock_or_retry(lock_name, retry_seconds=2)
+
+        See :func:``openerp.addons.connector.connector.pg_try_advisory_lock``
+        for details.
+
+        :param lock: The lock name. Can be anything convertible to a
+           string.  It needs to represent what should not be synchronized
+           concurrently, usually the string will contain at least: the
+           action, the backend type, the backend id, the model name, the
+           external id
+        :param retry_seconds: number of seconds after which a job should
+           be retried when the lock cannot be acquired.
+        """
+        if not pg_try_advisory_lock(self.env, lock):
+            raise RetryableJobError('Could not acquire advisory lock',
+                                    seconds=retry_seconds,
+                                    ignore_retry=True)
 
 
 class ConnectorEnvironment(object):
@@ -261,7 +291,15 @@ class ConnectorEnvironment(object):
     .. attribute:: model_name
 
         Name of the OpenERP model to work with.
+
+    .. attribute:: _propagate_kwargs
+
+        List of attributes that must be used by
+        :py:meth:`connector.connector.ConnectorEnvironment.create_environment`
+        when a new connector environment is instantiated.
     """
+
+    _propagate_kwargs = []
 
     def __init__(self, backend_record, session, model_name):
         """
@@ -316,6 +354,30 @@ class ConnectorEnvironment(object):
         return self.backend.get_class(base_class, self.session,
                                       self.model_name)(self)
 
+    @classmethod
+    def create_environment(cls, backend_record, session, model,
+                           connector_env=None):
+        """ Create a new environment ConnectorEnvironment.
+
+        :param backend_record: browse record of the backend
+        :type backend_record: :py:class:`openerp.models.Model`
+        :param session: current session (cr, uid, context)
+        :type session: :py:class:`connector.session.ConnectorSession`
+        :param model_name: name of the model
+        :type model_name: str
+        :param connector_env: an existing environment from which the kwargs
+                              will be propagated to the new one
+        :type connector_env:
+            :py:class:`connector.connector.ConnectorEnvironment`
+        """
+        kwargs = {}
+        if connector_env:
+            kwargs = {key: getattr(connector_env, key)
+                      for key in connector_env._propagate_kwargs}
+        if kwargs:
+            return cls(backend_record, session, model, **kwargs)
+        else:
+            return cls(backend_record, session, model)
 
 Environment = DeprecatedClass('Environment',
                               ConnectorEnvironment)
@@ -325,28 +387,43 @@ class Binder(ConnectorUnit):
     """ For one record of a model, capable to find an external or
     internal id, or create the binding (link) between them
 
-    The Binder should be implemented in the connectors.
+    This is a default implementation that can be inherited or reimplemented
+    in the connectors.
+
+    This implementation assumes that binding models are ``_inherits`` of
+    the models they are binding.
     """
 
     _model_name = None  # define in sub-classes
+    _external_field = 'external_id'  # override in sub-classes
+    _backend_field = 'backend_id'  # override in sub-classes
+    _openerp_field = 'openerp_id'  # override in sub-classes
+    _sync_date_field = 'sync_date'  # override in sub-classes
 
-    def to_openerp(self, external_id, unwrap=False, browse=False):
+    def to_openerp(self, external_id, unwrap=False):
         """ Give the OpenERP ID for an external ID
 
         :param external_id: external ID for which we want
                             the OpenERP ID
-        :param unwrap: if True, returns the openerp_id
-                       else return the id of the binding
-        :param browse: if True, returns a recordset
-        :return: a record ID, depending on the value of unwrap,
-                 or None if the external_id is not mapped
-        :rtype: int
+        :param unwrap: if True, returns the normal record
+                       else return the binding record
+        :return: a recordset, depending on the value of unwrap,
+                 or an empty recordset if the external_id is not mapped
+        :rtype: recordset
         """
-        raise NotImplementedError
+        bindings = self.model.with_context(active_test=False).search(
+            [(self._external_field, '=', str(external_id)),
+             (self._backend_field, '=', self.backend_record.id)]
+        )
+        if not bindings:
+            return self.model.browse()
+        bindings.ensure_one()
+        if unwrap:
+            bindings = getattr(bindings, self._openerp_field)
+        return bindings
 
     def to_backend(self, binding_id, wrap=False):
         """ Give the external ID for an OpenERP binding ID
-        (ID in a model magento.*)
 
         :param binding_id: OpenERP binding ID for which we want the backend id
         :param wrap: if False, binding_id is the ID of the binding,
@@ -355,7 +432,25 @@ class Binder(ConnectorUnit):
                      the backend id of the binding
         :return: external ID of the record
         """
-        raise NotImplementedError
+        record = self.model.browse()
+        if isinstance(binding_id, models.BaseModel):
+            binding_id.ensure_one()
+            record = binding_id
+            binding_id = binding_id.id
+        if wrap:
+            binding = self.model.with_context(active_test=False).search(
+                [(self._openerp_field, '=', binding_id),
+                 (self._backend_field, '=', self.backend_record.id),
+                 ]
+            )
+            if not binding:
+                return None
+            binding.ensure_one()
+            return getattr(binding, self._external_field)
+        if not record:
+            record = self.model.browse(binding_id)
+        assert record
+        return getattr(record, self._external_field)
 
     def bind(self, external_id, binding_id):
         """ Create the link between an external ID and an OpenERP ID
@@ -364,7 +459,19 @@ class Binder(ConnectorUnit):
         :param binding_id: OpenERP ID to bind
         :type binding_id: int
         """
-        raise NotImplementedError
+        # Prevent False, None, or "", but not 0
+        assert (external_id or external_id == 0) and binding_id, (
+            "external_id or binding_id missing, "
+            "got: %s, %s" % (external_id, binding_id)
+        )
+        # avoid to trigger the export when we modify the `external_id`
+        now_fmt = fields.Datetime.now()
+        if not isinstance(binding_id, models.BaseModel):
+            binding_id = self.model.browse(binding_id)
+        binding_id.with_context(connector_no_export=True).write(
+            {self._external_field: str(external_id),
+             self._sync_date_field: now_fmt,
+             })
 
     def unwrap_binding(self, binding_id, browse=False):
         """ For a binding record, gives the normal record.
@@ -375,7 +482,15 @@ class Binder(ConnectorUnit):
         :param browse: when True, returns a browse_record instance
                        rather than an ID
         """
-        raise NotImplementedError
+        if isinstance(binding_id, models.BaseModel):
+            binding = binding_id
+        else:
+            binding = self.model.browse(binding_id)
+
+        openerp_record = getattr(binding, self._openerp_field)
+        if browse:
+            return openerp_record
+        return openerp_record.id
 
     def unwrap_model(self):
         """ For a binding model, gives the normal model.
@@ -383,4 +498,81 @@ class Binder(ConnectorUnit):
         Example: when called on a binder for ``magento.product.product``,
         it will return ``product.product``.
         """
-        raise NotImplementedError
+        try:
+            column = self.model._fields[self._openerp_field]
+        except KeyError:
+            raise ValueError(
+                'Cannot unwrap model %s, because it has no %s fields'
+                % (self.model._name, self._openerp_field))
+        return column.comodel_name
+
+
+def pg_try_advisory_lock(env, lock):
+    """ Try to acquire a Postgres transactional advisory lock.
+
+    The function tries to acquire a lock, returns a boolean indicating
+    if it could be obtained or not. An acquired lock is released at the
+    end of the transaction.
+
+    A typical use is to acquire a lock at the beginning of an importer
+    to prevent 2 jobs to do the same import at the same time. Since the
+    record doesn't exist yet, we can't put a lock on a record, so we put
+    an advisory lock.
+
+    Example:
+     - Job 1 imports Partner A
+     - Job 2 imports Partner B
+     - Partner A has a category X which happens not to exist yet
+     - Partner B has a category X which happens not to exist yet
+     - Job 1 import category X as a dependency
+     - Job 2 import category X as a dependency
+
+    Since both jobs are executed concurrently, they both create a record
+    for category X so we have duplicated records.  With this lock:
+
+     - Job 1 imports Partner A, it acquires a lock for this partner
+     - Job 2 imports Partner B, it acquires a lock for this partner
+     - Partner A has a category X which happens not to exist yet
+     - Partner B has a category X which happens not to exist yet
+     - Job 1 import category X as a dependency, it acquires a lock for
+       this category
+     - Job 2 import category X as a dependency, try to acquire a lock
+       but can't, Job 2 is retried later, and when it is retried, it
+       sees the category X created by Job 1.
+
+    The lock is acquired until the end of the transaction.
+
+    Usage example:
+
+    ::
+
+        lock_name = 'import_record({}, {}, {}, {})'.format(
+            self.backend_record._name,
+            self.backend_record.id,
+            self.model._name,
+            self.external_id,
+        )
+        if pg_try_advisory_lock(lock_name):
+            # do sync
+        else:
+            raise RetryableJobError('Could not acquire advisory lock',
+                                    seconds=2,
+                                    ignore_retry=True)
+
+    :param env: the Odoo Environment
+    :param lock: The lock name. Can be anything convertible to a
+       string.  It needs to represents what should not be synchronized
+       concurrently so usually the string will contain at least: the
+       action, the backend type, the backend id, the model name, the
+       external id
+    :return True/False whether lock was acquired.
+    """
+    hasher = hashlib.sha1()
+    hasher.update('{}'.format(lock))
+    # pg_lock accepts an int8 so we build an hash composed with
+    # contextual information and we throw away some bits
+    int_lock = struct.unpack('q', hasher.digest()[:8])
+
+    env.cr.execute('SELECT pg_try_advisory_xact_lock(%s);', (int_lock,))
+    acquired = env.cr.fetchone()[0]
+    return acquired
