@@ -34,7 +34,8 @@ from .job import STATES, DONE, PENDING, OpenERPJobStorage, JOB_REGISTRY
 from .worker import WORKER_TIMEOUT
 from openerp.addons.connector.session import ConnectorSession
 from .worker import watcher
-from ..connector import get_openerp_module, is_module_installed
+from openerp.addons.connector.connector import get_openerp_module, \
+    is_module_installed
 
 _logger = logging.getLogger(__name__)
 
