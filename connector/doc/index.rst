@@ -18,7 +18,7 @@ customizations.
 The development of Odoo Connector has been started by `Camptocamp`_ and is now
 maintained by `Camptocamp`_, `Akretion`_, `Acsone`_ and several :ref:`contributors`.
 
-*Subscribe to the* `project's mailing list`_
+*Subscribe to the* `project's mailing list (name: Connectors)`_
 
 *Learn how to* :ref:`contribute`
 
@@ -42,7 +42,15 @@ Core Features
 .. _Acsone: http://www.acsone.eu
 .. _`source code is available on GitHub`: https://github.com/OCA/connector
 .. _`AGPL version 3`: http://www.gnu.org/licenses/agpl-3.0.html
-.. _`project's mailing list`: https://launchpad.net/~openerp-connector-community
+.. _`project's mailing list (name: Connectors)`: https://odoo-community.org/groups
+
+****************************************
+Last minute information regarding Odoo 9
+****************************************
+
+* A crowdfunding campaign is currently running to finance the migration of this connector to make it compatible with Odoo 9. **Be part of this project now!** `More info here`_
+
+.. _`More info here`: https://www.indiegogo.com/projects/odoo-connector-odoo-magento-connector-for-odoo-9#/
 
 *********************************
 Connectors based on the framework
