@@ -30,7 +30,7 @@ from cStringIO import StringIO
 
 import openerp
 from openerp.tools.translate import _
-
+from openerp.exceptions import MissingError
 from openerp.addons.connector.exception import (NotReadableJobError,
                                                 NoSuchJobError,
                                                 FailedJobError,
@@ -241,7 +241,12 @@ class OpenERPJobStorage(JobStorage):
 
         db_record = self.db_record(job_)
         if db_record:
-            db_record.write(vals)
+            try:
+                db_record.write(vals)
+            except MissingError:
+                # Sometimes is necessary to refresh the job from the
+                # database before writing.
+                self.db_record(job_).write(vals)
         else:
             date_created = dt_to_string(job_.date_created)
             vals.update({'uuid': job_.uuid,
