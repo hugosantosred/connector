@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: connector (8.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-17 07:17+0000\n"
-"PO-Revision-Date: 2016-10-04 09:42+0000\n"
+"POT-Creation-Date: 2016-12-24 00:45+0000\n"
+"PO-Revision-Date: 2016-12-27 08:22+0000\n"
 "Last-Translator: OCA Transbot <transbot@odoo-community.org>\n"
 "Language-Team: Russian (http://www.transifex.com/oca/OCA-connector-8-0/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -212,7 +212,7 @@ msgstr ""
 #: field:connector.config.settings,create_uid:0
 #: field:queue.job.channel,create_uid:0 field:queue.requeue.job,create_uid:0
 msgid "Created by"
-msgstr ""
+msgstr "Создано"
 
 #. module: connector
 #: field:connector.checkpoint,create_date:0
@@ -220,7 +220,7 @@ msgstr ""
 #: field:connector.config.settings,create_date:0
 #: field:queue.job.channel,create_date:0 field:queue.requeue.job,create_date:0
 msgid "Created on"
-msgstr ""
+msgstr "Создан"
 
 #. module: connector
 #: field:queue.job,retry:0
@@ -342,7 +342,7 @@ msgstr ""
 #: field:queue.job.channel,id:0 field:queue.job.function,id:0
 #: field:queue.requeue.job,id:0 field:queue.worker,id:0
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: connector
 #: help:connector.checkpoint,message_unread:0 help:queue.job,message_unread:0
@@ -438,7 +438,7 @@ msgstr ""
 #: field:connector.config.settings,write_uid:0
 #: field:queue.job.channel,write_uid:0 field:queue.requeue.job,write_uid:0
 msgid "Last Updated by"
-msgstr ""
+msgstr "Последний раз обновлено"
 
 #. module: connector
 #: field:connector.checkpoint,write_date:0
@@ -446,7 +446,7 @@ msgstr ""
 #: field:connector.config.settings,write_date:0
 #: field:queue.job.channel,write_date:0 field:queue.requeue.job,write_date:0
 msgid "Last Updated on"
-msgstr ""
+msgstr "Последний раз обновлено"
 
 #. module: connector
 #: field:external.binding,sync_date:0
@@ -483,13 +483,13 @@ msgstr ""
 #: view:connector.checkpoint:connector.view_connector_checkpoint_search
 #: field:connector.checkpoint,model_id:0 field:queue.job,model_name:0
 msgid "Model"
-msgstr ""
+msgstr "Модель"
 
 #. module: connector
 #: field:connector.backend,name:0 field:queue.job.channel,name:0
 #: field:queue.job.function,name:0
 msgid "Name"
-msgstr ""
+msgstr "Название"
 
 #. module: connector
 #: help:connector.checkpoint,name:0
@@ -780,7 +780,7 @@ msgstr ""
 #: view:connector.config.settings:connector.view_connector_config_settings
 #: view:queue.requeue.job:connector.view_requeue_job
 msgid "or"
-msgstr ""
+msgstr "или"
 
 #. module: connector
 #: view:connector.checkpoint:connector.view_connector_checkpoint_form

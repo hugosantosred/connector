@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: connector (8.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-08 05:51+0000\n"
-"PO-Revision-Date: 2016-09-13 11:38+0000\n"
+"POT-Creation-Date: 2017-01-07 01:20+0000\n"
+"PO-Revision-Date: 2017-01-13 09:26+0000\n"
 "Last-Translator: OCA Transbot <transbot@odoo-community.org>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/oca/OCA-connector-8-0/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
@@ -45,7 +45,7 @@ msgstr ""
 #. module: connector
 #: field:queue.job,active:0
 msgid "Active"
-msgstr ""
+msgstr "Ativo"
 
 #. module: connector
 #: field:connector.config.settings,alias_domain:0
@@ -151,7 +151,7 @@ msgstr ""
 #. module: connector
 #: field:queue.job,company_id:0
 msgid "Company"
-msgstr ""
+msgstr "Empresa"
 
 #. module: connector
 #: field:queue.job.channel,complete_name:0 field:queue.job.function,channel:0
@@ -246,7 +246,7 @@ msgstr "Data da última mensagem registada."
 #. module: connector
 #: field:queue.job,name:0
 msgid "Description"
-msgstr ""
+msgstr "Descrição"
 
 #. module: connector
 #: field:connector.backend,display_name:0
@@ -258,12 +258,12 @@ msgstr ""
 #: field:queue.job.function,display_name:0
 #: field:queue.requeue.job,display_name:0 field:queue.worker,display_name:0
 msgid "Display Name"
-msgstr ""
+msgstr "Nome a Apresentar"
 
 #. module: connector
 #: view:queue.job:connector.view_queue_job_search selection:queue.job,state:0
 msgid "Done"
-msgstr ""
+msgstr "Concluído"
 
 #. module: connector
 #: field:queue.job,date_enqueued:0
@@ -430,7 +430,7 @@ msgstr "Data da Última Mensagem"
 #: field:queue.job.function,__last_update:0
 #: field:queue.requeue.job,__last_update:0 field:queue.worker,__last_update:0
 msgid "Last Modified on"
-msgstr ""
+msgstr "Última Modificação Em"
 
 #. module: connector
 #: field:connector.checkpoint,write_uid:0
@@ -483,13 +483,13 @@ msgstr "História das mensagens e comunicações"
 #: view:connector.checkpoint:connector.view_connector_checkpoint_search
 #: field:connector.checkpoint,model_id:0 field:queue.job,model_name:0
 msgid "Model"
-msgstr ""
+msgstr "Modelo"
 
 #. module: connector
 #: field:connector.backend,name:0 field:queue.job.channel,name:0
 #: field:queue.job.function,name:0
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #. module: connector
 #: help:connector.checkpoint,name:0
@@ -532,7 +532,7 @@ msgstr ""
 #. module: connector
 #: view:queue.job:connector.view_queue_job_search selection:queue.job,state:0
 msgid "Pending"
-msgstr ""
+msgstr "Pendente"
 
 #. module: connector
 #: field:queue.job,func:0
@@ -684,7 +684,7 @@ msgstr "Resumo"
 #. module: connector
 #: field:queue.job,func_string:0
 msgid "Task"
-msgstr ""
+msgstr "Tarefa"
 
 #. module: connector
 #: help:queue.job,max_retries:0
@@ -780,7 +780,7 @@ msgstr ""
 #: view:connector.config.settings:connector.view_connector_config_settings
 #: view:queue.requeue.job:connector.view_requeue_job
 msgid "or"
-msgstr ""
+msgstr "ou"
 
 #. module: connector
 #: view:connector.checkpoint:connector.view_connector_checkpoint_form

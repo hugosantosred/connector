@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: connector (8.0)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-08 05:51+0000\n"
-"PO-Revision-Date: 2016-09-09 12:24+0000\n"
+"POT-Creation-Date: 2016-12-24 00:45+0000\n"
+"PO-Revision-Date: 2016-12-27 08:24+0000\n"
 "Last-Translator: OCA Transbot <transbot@odoo-community.org>\n"
 "Language-Team: Romanian (http://www.transifex.com/oca/OCA-connector-8-0/language/ro/)\n"
 "MIME-Version: 1.0\n"
@@ -216,7 +216,7 @@ msgstr ""
 #: field:connector.config.settings,create_uid:0
 #: field:queue.job.channel,create_uid:0 field:queue.requeue.job,create_uid:0
 msgid "Created by"
-msgstr ""
+msgstr "Creat de"
 
 #. module: connector
 #: field:connector.checkpoint,create_date:0
@@ -224,7 +224,7 @@ msgstr ""
 #: field:connector.config.settings,create_date:0
 #: field:queue.job.channel,create_date:0 field:queue.requeue.job,create_date:0
 msgid "Created on"
-msgstr ""
+msgstr "Creat la"
 
 #. module: connector
 #: field:queue.job,retry:0
@@ -262,7 +262,7 @@ msgstr ""
 #: field:queue.job.function,display_name:0
 #: field:queue.requeue.job,display_name:0 field:queue.worker,display_name:0
 msgid "Display Name"
-msgstr ""
+msgstr "Nume Afişat"
 
 #. module: connector
 #: view:queue.job:connector.view_queue_job_search selection:queue.job,state:0
@@ -346,7 +346,7 @@ msgstr ""
 #: field:queue.job.channel,id:0 field:queue.job.function,id:0
 #: field:queue.requeue.job,id:0 field:queue.worker,id:0
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: connector
 #: help:connector.checkpoint,message_unread:0 help:queue.job,message_unread:0
@@ -434,7 +434,7 @@ msgstr ""
 #: field:queue.job.function,__last_update:0
 #: field:queue.requeue.job,__last_update:0 field:queue.worker,__last_update:0
 msgid "Last Modified on"
-msgstr ""
+msgstr "Ultima actualizare în"
 
 #. module: connector
 #: field:connector.checkpoint,write_uid:0
@@ -442,7 +442,7 @@ msgstr ""
 #: field:connector.config.settings,write_uid:0
 #: field:queue.job.channel,write_uid:0 field:queue.requeue.job,write_uid:0
 msgid "Last Updated by"
-msgstr ""
+msgstr "Ultima actualizare făcută de"
 
 #. module: connector
 #: field:connector.checkpoint,write_date:0
@@ -450,7 +450,7 @@ msgstr ""
 #: field:connector.config.settings,write_date:0
 #: field:queue.job.channel,write_date:0 field:queue.requeue.job,write_date:0
 msgid "Last Updated on"
-msgstr ""
+msgstr "Ultima actualizare la"
 
 #. module: connector
 #: field:external.binding,sync_date:0
@@ -688,7 +688,7 @@ msgstr ""
 #. module: connector
 #: field:queue.job,func_string:0
 msgid "Task"
-msgstr ""
+msgstr "Sarcina"
 
 #. module: connector
 #: help:queue.job,max_retries:0
@@ -784,7 +784,7 @@ msgstr ""
 #: view:connector.config.settings:connector.view_connector_config_settings
 #: view:queue.requeue.job:connector.view_requeue_job
 msgid "or"
-msgstr ""
+msgstr "sau"
 
 #. module: connector
 #: view:connector.checkpoint:connector.view_connector_checkpoint_form
